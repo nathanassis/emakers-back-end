@@ -1,7 +1,6 @@
 package com.emakers.trainee_back_end.controllers;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.BeanUtils;
@@ -12,63 +11,49 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.emakers.trainee_back_end.dtos.LivroDto;
 import com.emakers.trainee_back_end.models.LivroModel;
-import com.emakers.trainee_back_end.repositories.LivroRepository;
+import com.emakers.trainee_back_end.services.LivroService;
 
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/livro")
 public class LivroController {
     @Autowired
-    LivroRepository livroRepository;
+    LivroService livroService;
 
-    @PostMapping("/livro")
-    public ResponseEntity<LivroModel> createLivro(@RequestBody @Valid LivroDto livroDto) {
+    @PostMapping
+    public ResponseEntity<LivroModel> createLivro(@RequestBody @Valid LivroDto livroRequest) {
         var livroModel = new LivroModel();
-        BeanUtils.copyProperties(livroDto, livroModel);
-        return ResponseEntity.status(HttpStatus.CREATED).body(livroRepository.save(livroModel));
+        BeanUtils.copyProperties(livroRequest, livroModel);
+        return ResponseEntity.status(HttpStatus.CREATED).body(livroService.create(livroModel));
     }
 
-    @GetMapping("/livro")
+    @GetMapping
     public ResponseEntity<List<LivroModel>> readAllLivros() {
-        return ResponseEntity.status(HttpStatus.OK).body(livroRepository.findAll());
+        return ResponseEntity.status(HttpStatus.OK).body(livroService.getAll());
     }
 
-    @GetMapping("/livro/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Object> readLivro(@PathVariable(value = "id") UUID id) {
-        Optional<LivroModel> livro = livroRepository.findById(id);
-
-        if (livro.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Livro não encontrado.");
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(livro.get());
+        return ResponseEntity.status(HttpStatus.OK).body(livroService.validateAndGet(id));
     }
 
-    @PutMapping("/livro/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Object> updateLivro(@PathVariable(value = "id") UUID id,
-            @RequestBody @Valid LivroDto livroDto) {
-        Optional<LivroModel> livro = livroRepository.findById(id);
-
-        if (livro.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Livro não encontrado.");
-        }
-
-        var livroModel = livro.get();
-        BeanUtils.copyProperties(livroDto, livroModel);
-        return ResponseEntity.status(HttpStatus.OK).body(livroRepository.save(livroModel));
+            @RequestBody @Valid LivroDto livroRequest) {
+        LivroModel livro = livroService.validateAndGet(id);
+        BeanUtils.copyProperties(livroRequest, livro);
+        return ResponseEntity.status(HttpStatus.OK).body(livroService.create(livro));
     }
 
-    @DeleteMapping("/livro/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteLivro(@PathVariable(value = "id") UUID id) {
-        Optional<LivroModel> livro = livroRepository.findById(id);
+        LivroModel livro = livroService.validateAndGet(id);
+        livroService.delete(livro);
 
-        if (livro.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Livro não encontrado.");
-        }
-
-        livroRepository.delete(livro.get());
-        return ResponseEntity.status(HttpStatus.OK).body("Livro " + livro.get().getNome() + " deletado com sucesso.");
+        return ResponseEntity.status(HttpStatus.OK).body("Livro " + livro.getNome() + " deletado com sucesso.");
     }
 
 }
