@@ -52,8 +52,7 @@ public class LivroController {
     public ResponseEntity<Object> deleteLivro(@PathVariable(value = "id") UUID id) {
         LivroModel livro = livroService.validateAndGet(id);
         livroService.delete(livro);
-
-        return ResponseEntity.status(HttpStatus.OK).body("Livro " + livro.getNome() + " deletado com sucesso.");
+        return ResponseEntity.status(HttpStatus.OK).body(String.format("'%s' deletado com sucesso.", livro.getNome()));
     }
 
 }
