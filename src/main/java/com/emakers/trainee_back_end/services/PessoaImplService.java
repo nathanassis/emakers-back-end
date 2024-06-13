@@ -47,6 +47,12 @@ public class PessoaImplService implements PessoaService {
             }
         }
 
+        Integer quantidade = livro.getQuantidade();
+        if (quantidade.equals(0)) {
+            return String.format("O livro de id '%s' não está disponível em estoque", livro.getIdLivro());
+        }
+
+        livro.setQuantidade(quantidade - 1);
         pessoa.addLivro(livro);
         pessoaRepository.save(pessoa);
         return String.format("O livro de id '%s' foi emprestado com sucesso.", livro.getIdLivro());
@@ -57,6 +63,7 @@ public class PessoaImplService implements PessoaService {
         Set<LivroModel> livrosEmprestados = pessoa.getLivros();
         for (LivroModel livroEmprestado : livrosEmprestados) {
             if (livroEmprestado.equals(livro)) {
+                livro.setQuantidade(livro.getQuantidade() + 1);
                 pessoa.removeLivro(livro);
                 pessoaRepository.save(pessoa);
                 return String.format("O livro de id '%s' foi devolvido com sucesso.", livro.getIdLivro());

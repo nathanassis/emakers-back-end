@@ -29,6 +29,9 @@ public class LivroModel implements Serializable {
     @Column(columnDefinition = "DATE")
     private Date dataLancamento;
 
+    @Column(nullable = false, columnDefinition = "INT")
+    private Integer quantidade;
+
     @ManyToMany(cascade = { CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
     @JoinTable(name = "emprestimo", joinColumns = @JoinColumn(name = "id_livro"), inverseJoinColumns = @JoinColumn(name = "id_pessoa"))
     private Set<PessoaModel> pessoas = new LinkedHashSet<>();
@@ -63,6 +66,14 @@ public class LivroModel implements Serializable {
 
     public void setDataLancamento(Date dataLancamento) {
         this.dataLancamento = dataLancamento;
+    }
+
+    public Integer getQuantidade() {
+        return quantidade;
+    }
+
+    public void setQuantidade(Integer quantidade) {
+        this.quantidade = quantidade;
     }
 
     @JsonBackReference
