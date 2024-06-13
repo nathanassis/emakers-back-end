@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.emakers.trainee_back_end.dtos.PessoaDto;
+import com.emakers.trainee_back_end.models.LivroModel;
 import com.emakers.trainee_back_end.models.PessoaModel;
+import com.emakers.trainee_back_end.services.LivroService;
 import com.emakers.trainee_back_end.services.PessoaService;
 
 import jakarta.validation.Valid;
@@ -23,12 +25,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-
 @RestController
 @RequestMapping("/pessoa")
 public class PessoaController {
     @Autowired
     PessoaService pessoaService;
+    @Autowired
+    LivroService livroService;
 
     @PostMapping
     public ResponseEntity<PessoaModel> createPessoa(@RequestBody @Valid PessoaDto pessoaRequest) {
@@ -59,7 +62,27 @@ public class PessoaController {
     public ResponseEntity<Object> deletePessoa(@PathVariable(value = "id") UUID id) {
         PessoaModel pessoa = pessoaService.validateAndGet(id);
         pessoaService.delete(pessoa);
-        return ResponseEntity.status(HttpStatus.OK).body(String.format("'%s' deletado(a) com sucesso.", pessoa.getNome()));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(String.format("'%s' deletado(a) com sucesso.", pessoa.getNome()));
+    }
+
+    // -----
+    // Emprestimo
+
+    @PostMapping("/{idPessoa}/livro/{idLivro}")
+    public ResponseEntity<Object> createEmprestimo(@PathVariable(value = "idPessoa") UUID idPessoa,
+            @PathVariable(value = "idLivro") UUID idLivro) {
+        PessoaModel pessoa = pessoaService.validateAndGet(idPessoa);
+        LivroModel livro = livroService.validateAndGet(idLivro);
+        return ResponseEntity.status(HttpStatus.OK).body(pessoaService.addLivro(pessoa, livro));
+    }
+
+    @DeleteMapping("/{idPessoa}/livro/{idLivro}")
+    public ResponseEntity<Object> deleteEmprestimo(@PathVariable(value = "idPessoa") UUID idPessoa,
+            @PathVariable(value = "idLivro") UUID idLivro) {
+        PessoaModel pessoa = pessoaService.validateAndGet(idPessoa);
+        LivroModel livro = livroService.validateAndGet(idLivro);
+        return ResponseEntity.status(HttpStatus.OK).body(pessoaService.removeLivro(pessoa, livro));
     }
 
 }

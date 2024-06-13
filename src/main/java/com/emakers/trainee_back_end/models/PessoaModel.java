@@ -1,8 +1,11 @@
 package com.emakers.trainee_back_end.models;
 
 import java.io.Serializable;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.*;
 
@@ -23,7 +26,7 @@ public class PessoaModel implements Serializable {
     private String cep;
 
     @ManyToMany(mappedBy = "pessoas")
-    private Set<LivroModel> livros;
+    private Set<LivroModel> livros = new LinkedHashSet<>();
 
     public UUID getIdPessoa() {
         return idPessoa;
@@ -49,11 +52,22 @@ public class PessoaModel implements Serializable {
         this.cep = cep;
     }
 
+    @JsonManagedReference
     public Set<LivroModel> getLivros() {
         return livros;
     }
 
     public void setLivros(Set<LivroModel> livros) {
         this.livros = livros;
+    }
+
+    public void addLivro(LivroModel livro) {
+        livros.add(livro);
+        livro.getPessoas().add(this);
+    }
+
+    public void removeLivro(LivroModel livro) {
+        livros.remove(livro);
+        livro.getPessoas().remove(this);
     }
 }

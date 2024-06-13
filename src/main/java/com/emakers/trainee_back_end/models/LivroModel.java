@@ -2,8 +2,11 @@ package com.emakers.trainee_back_end.models;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.*;
 
@@ -28,7 +31,7 @@ public class LivroModel implements Serializable {
 
     @ManyToMany(cascade = { CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
     @JoinTable(name = "emprestimo", joinColumns = @JoinColumn(name = "id_livro"), inverseJoinColumns = @JoinColumn(name = "id_pessoa"))
-    private Set<PessoaModel> pessoas;
+    private Set<PessoaModel> pessoas = new LinkedHashSet<>();
 
     public UUID getIdLivro() {
         return idLivro;
@@ -62,6 +65,7 @@ public class LivroModel implements Serializable {
         this.dataLancamento = dataLancamento;
     }
 
+    @JsonBackReference
     public Set<PessoaModel> getPessoas() {
         return pessoas;
     }
