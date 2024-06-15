@@ -33,13 +33,6 @@ public class PessoaController {
     @Autowired
     LivroService livroService;
 
-    @PostMapping
-    public ResponseEntity<PessoaModel> createPessoa(@RequestBody @Valid PessoaDto pessoaRequest) {
-        var pessoa = new PessoaModel();
-        BeanUtils.copyProperties(pessoaRequest, pessoa);
-        return ResponseEntity.status(HttpStatus.OK).body(pessoaService.create(pessoa));
-    }
-
     @GetMapping
     public ResponseEntity<List<PessoaModel>> readAllPessoas() {
         return ResponseEntity.status(HttpStatus.OK).body(pessoaService.getAll());
